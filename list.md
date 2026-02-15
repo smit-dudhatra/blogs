@@ -85,14 +85,4 @@ Your first step into API communication - a beginner's guide to using cURL.
 
 🔗 [Read Article](https://vcs-inception.hashnode.dev/curl-for-beginners-your-first-step-into-api-communication?t=1769010207652)
 
----
 
-## 📊 Quick Stats
-
-- **Total Articles:** 13
-- **Categories:** 4
-- **Topics Covered:** Networking, Version Control, Web Development, Developer Tools
-
----
-
-*Last Updated: February 15, 2026*
