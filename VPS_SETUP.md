@@ -118,7 +118,13 @@ Type=simple
 User=ubuntu
 WorkingDirectory=/home/my-scripts/nifty-straddle
 ExecStart=/usr/bin/python3.14 nifty50_straddle.py
-Restart=no
+
+Restart=on-failure
+RestartSec=60
+StartLimitIntervalSec=600
+StartLimitBurst=3
+RestartPreventExitStatus=0
+
 StandardOutput=journal
 StandardError=journal
 Environment=PYTHONUNBUFFERED=1
@@ -128,11 +134,26 @@ WantedBy=multi-user.target
 ```
 
 > **Why `Restart=no`?**
-> The service will NOT auto-restart if the script exits. This is intentional — if a major exception occurs (e.g., insufficient funds, broker API error), the script calls `exit(0)` and the service stops cleanly. This prevents uncontrolled retries or hammering the broker server.
+> The service will not auto-restart if the script exits. This is intentional — if a major exception occurs (e.g., insufficient funds, broker API error), the script calls `exit(0)` and the service stops cleanly. This prevents uncontrolled retries and avoids hammering the broker server.
 
-### 8b. Reload systemd and enable the service
+### 8b. Validate the service file syntax
 
-After creating or editing the service file, reload the systemd daemon so it picks up the changes:
+Before reloading systemd, verify that the service file has no syntax errors:
+
+```bash
+systemd-analyze verify /etc/systemd/system/nifty-straddle.service
+```
+
+| Output | Meaning |
+|---|---|
+| No output | File is valid ✓ |
+| Warnings or errors printed | Something is wrong — fix before proceeding |
+
+> **Note:** `sudo systemctl daemon-reload` silently ignores bad syntax and will not warn you about errors. Always run `systemd-analyze verify` first after editing the service file to catch issues explicitly.
+
+### 8c. Reload systemd
+
+After confirming the file is valid, reload the systemd daemon so it picks up the changes:
 
 ```bash
 sudo systemctl daemon-reload
@@ -140,7 +161,7 @@ sudo systemctl daemon-reload
 
 > `daemon-reload` instructs systemd to rescan all unit files, rebuild the dependency tree, and rerun generators — without restarting the entire system.
 
-### 8c. Disable boot auto-start (important — we use cron instead)
+### 8d. Disable boot auto-start (important — we use cron instead)
 
 Since cron controls when the service starts (Mon & Tue at 8:55 AM IST), you do **not** want systemd to auto-start it on every VPS reboot:
 
@@ -159,15 +180,15 @@ Expected output:
 nifty-straddle.service    disabled    enabled
 ```
 
-This is correct. `disabled` = won't auto-start on boot. Your cron job still starts it on schedule.
+This is correct. `disabled` means it will not auto-start on boot. Your cron job still starts it on schedule as usual.
 
-### 8d. Manually start the service
+### 8e. Manually start the service
 
 ```bash
 sudo systemctl start nifty-straddle
 ```
 
-### 8e. Check actual running status
+### 8f. Check actual running status
 
 ```bash
 systemctl status nifty-straddle
@@ -178,7 +199,7 @@ systemctl status nifty-straddle
 | `Active: active (running)` | Script is running right now |
 | `Active: inactive (dead)` | Script is stopped ✓ |
 
-### 8f. Stop the service
+### 8g. Stop the service
 
 To stop the service at any time — including mid-session if you need to halt the script abruptly:
 
@@ -186,9 +207,9 @@ To stop the service at any time — including mid-session if you need to halt th
 sudo systemctl stop nifty-straddle
 ```
 
-> systemd sends `SIGTERM` to the Python process, which kills it immediately. Use this anytime you want to stop the bot mid-run — e.g., at 11:30 AM before market close.
+> systemd sends `SIGTERM` to the Python process, which kills it immediately. Use this whenever you need to stop the bot mid-run — for example, at 11:30 AM before market close.
 
-View live logs:
+### 8h. View live logs
 
 ```bash
 sudo journalctl -u nifty-straddle -f
@@ -200,11 +221,11 @@ sudo journalctl -u nifty-straddle -f
 
 ### Why this matters
 
-Your script prints heavily — live ticker data, order logs, minute-by-minute checks. `journalctl` stores **all of it**. Without any size limit, it grows unboundedly and can fill your VPS disk over weeks.
+Your script prints heavily — live ticker data, order logs, and minute-by-minute checks. `journalctl` stores all of it. Without a size limit, the journal grows unboundedly and can fill your VPS disk over weeks.
 
 ### 9a. Check current journal disk usage
 
-Run this anytime to see how much disk space your logs are consuming:
+Run this at any time to see how much disk space your logs are consuming:
 
 ```bash
 journalctl --disk-usage
@@ -215,18 +236,17 @@ Example output:
 Archived and active journals take up 16.0M in the file system.
 ```
 
-**What this means:**
 | Term | Description |
 |---|---|
 | **Active journals** | Logs from currently running services (being written right now) |
 | **Archived journals** | Old rotated log files from previous service runs |
-| **16 MB total** | Completely fine — a typical VPS has 20–40 GB disk |
+| **16 MB total** | Completely fine — a typical VPS has 20–40 GB of disk space |
 
-You only need to act if it grows to several hundred MB or more. The one-time cap below handles that automatically.
+You only need to act if usage grows to several hundred MB or more. The one-time cap below handles that automatically.
 
 ### 9b. Set a permanent 100 MB size cap (run once, not in cron)
 
-This tells `journald` to auto-delete the oldest log entries whenever total usage exceeds 100 MB — set it once and never think about it again:
+This tells `journald` to auto-delete the oldest log entries whenever total usage exceeds 100 MB. Set it once and never think about it again:
 
 ```bash
 sudo mkdir -p /etc/systemd/journald.conf.d/
@@ -253,7 +273,7 @@ SystemMaxUse=100M
 ```
 
 > **Why does `journalctl --disk-usage` still show 16 MB after setting the cap?**
-> That is completely normal. The 100 MB cap does **not** shrink existing logs — it only **prevents future growth** beyond 100 MB. Since 16 MB is already well under the limit, journald has nothing to delete. The cap kicks in automatically in the future when logs accumulate and approach 100 MB, at which point it will start auto-deleting the oldest entries to stay under the limit.
+> This is completely normal. The 100 MB cap does not shrink existing logs — it only prevents future growth beyond 100 MB. Since 16 MB is already well under the limit, journald has nothing to delete. The cap will kick in automatically in the future when logs accumulate and approach 100 MB, at which point journald will start auto-deleting the oldest entries to stay within the limit.
 
 ---
 
@@ -309,10 +329,11 @@ crontab -e
 |---|---|
 | `sudo systemctl start nifty-straddle` | Start the service |
 | `sudo systemctl stop nifty-straddle` | Stop the service (kills process immediately via SIGTERM) |
-| `sudo systemctl status nifty-straddle` | Check if running or stopped |
-| `sudo systemctl enable nifty-straddle` | Mark to auto-start on boot |
-| `sudo systemctl disable nifty-straddle` | Remove auto-start on boot |
-| `sudo systemctl daemon-reload` | Reload systemd config after editing service file |
+| `sudo systemctl status nifty-straddle` | Check if the service is running or stopped |
+| `sudo systemctl enable nifty-straddle` | Mark the service to auto-start on boot |
+| `sudo systemctl disable nifty-straddle` | Remove the auto-start on boot mark |
+| `sudo systemctl daemon-reload` | Reload systemd config after editing the service file |
+| `systemd-analyze verify /etc/systemd/system/nifty-straddle.service` | Validate service file syntax |
 
 ### Logs
 
@@ -348,10 +369,10 @@ sudo systemctl stop nifty-straddle
 |---|---|
 | `systemctl stop` | Kills the running process **right now** |
 | `systemctl start` | Starts the process **right now** |
-| `systemctl enable` | Marks it to **auto-start on every boot** |
+| `systemctl enable` | Marks the service to **auto-start on every boot** |
 | `systemctl disable` | Removes the **auto-start on boot** mark |
 
-So `enabled` just means it will start when the VPS reboots — it says **nothing** about whether the process is running right now. Always use `systemctl status` to check the actual running state.
+`enabled` simply means the service will start when the VPS reboots — it says nothing about whether the process is running right now. Always use `systemctl status` to check the actual running state.
 
 ---
 
@@ -370,35 +391,35 @@ nifty-straddle.service    disabled    enabled
                           ^STATE      ^PRESET
 ```
 
-**STATE** — what it's currently configured to do on boot:
+**STATE** — what the service is currently configured to do on boot:
 
 | State | Meaning |
 |---|---|
 | `enabled` | Will auto-start on boot |
-| `disabled` | Will NOT auto-start on boot |
-| `static` | Can't be enabled/disabled, used by other units |
-| `masked` | Completely blocked, can't be started at all |
+| `disabled` | Will not auto-start on boot |
+| `static` | Cannot be enabled/disabled; started by other units only |
+| `masked` | Completely blocked — cannot be started at all |
 
-**PRESET** — the distribution's default/recommended state for this service:
+**PRESET** — the distribution's default recommendation for this service:
 
 | Preset | Meaning |
 |---|---|
-| `enabled` | Ubuntu recommends this should be enabled by default |
-| `disabled` | Ubuntu recommends this should be disabled by default |
+| `enabled` | Ubuntu recommends this service be enabled by default |
+| `disabled` | Ubuntu recommends this service be disabled by default |
 
-> The PRESET column shows `enabled` because the `.service` file has `WantedBy=multi-user.target`, which is the standard Ubuntu default. It doesn't change unless you explicitly run `systemctl preset`. It's just a recommendation — your actual STATE (`disabled`) is what matters.
+> The PRESET column shows `enabled` because the `.service` file declares `WantedBy=multi-user.target`, which follows the standard Ubuntu convention. PRESET does not change unless you explicitly run `systemctl preset`. It is only a recommendation — your actual STATE (`disabled`) is what matters.
 
 ---
 
 ### Stopping the script abruptly mid-session
 
-If the script is running (e.g., cron started it at 8:55 AM) and you need to stop it immediately at any point:
+If the script is running (e.g., cron started it at 8:55 AM) and you need to stop it immediately at any point during the day:
 
 ```bash
 sudo systemctl stop nifty-straddle
 ```
 
-systemd sends `SIGTERM` to the Python process, which kills it immediately. Confirm it stopped:
+systemd sends `SIGTERM` to the Python process, which kills it immediately. Confirm it has stopped:
 
 ```bash
 systemctl status nifty-straddle
@@ -409,7 +430,7 @@ systemctl status nifty-straddle
 
 ### What is a symlink?
 
-A symlink (symbolic link) is a file that **points to another file or directory** — like a shortcut on your desktop.
+A symlink (symbolic link) is a file that **points to another file or directory** — similar to a shortcut.
 
 ```
 /etc/systemd/system/multi-user.target.wants/
@@ -418,13 +439,13 @@ A symlink (symbolic link) is a file that **points to another file or directory**
 
 | Type | How it works |
 |---|---|
-| **Hard link** | Points directly to the data on disk (same inode) — must be on the same filesystem |
-| **Symlink** | Points to a path — can cross filesystems, can point to directories |
+| **Hard link** | Points directly to data on disk (same inode) — must be on the same filesystem |
+| **Symlink** | Points to a path — can cross filesystems and point to directories |
 
-If you delete a symlink, the original file is **completely unaffected**.
+Deleting a symlink leaves the original file completely unaffected.
 
 **How this relates to systemd:**
-When you run `sudo systemctl enable nifty-straddle`, systemd creates this symlink inside `multi-user.target.wants/`. That's how it knows to start the service during boot. When you run `sudo systemctl disable nifty-straddle`, it simply **removes that symlink** — the `.service` file itself is untouched.
+When you run `sudo systemctl enable nifty-straddle`, systemd creates a symlink inside `multi-user.target.wants/` — that is how it knows to start the service during boot. When you run `sudo systemctl disable nifty-straddle`, it simply removes that symlink. The `.service` file itself is never touched.
 
 ---
 
@@ -437,20 +458,49 @@ The `[Install]` section in a `.service` file defines **how the service gets link
 WantedBy=multi-user.target
 ```
 
-`multi-user.target` is the standard Linux boot state meaning:
-- Non-graphical environment
+`multi-user.target` is the standard Linux boot state where:
+- The environment is non-graphical
 - Networking is up
-- System is fully running and ready for use
+- The system is fully running and ready for use
 
-When you run `sudo systemctl enable nifty-straddle`, systemd creates a symlink:
+When you run `sudo systemctl enable nifty-straddle`, systemd creates the following symlink:
+
 ```
 /etc/systemd/system/multi-user.target.wants/nifty-straddle.service
     → /etc/systemd/system/nifty-straddle.service
 ```
 
-This tells systemd: *"when multi-user.target is reached during boot, also start this service."*
+This tells systemd: *"when `multi-user.target` is reached during boot, start this service as well."*
 
-> **In your setup**, since you're using cron to start the service (not `systemctl enable`), the `[Install]` section has **no effect on day-to-day operation**. It's kept in the file as a convention so the service *could* be boot-enabled in the future if needed.
+> **In your setup**, since cron is used to start the service rather than `systemctl enable`, the `[Install]` section has no effect on day-to-day operation. It is kept in the file as a convention so the service could be boot-enabled in the future if needed.
+
+---
+
+### Validating the service file syntax
+
+Always validate the service file after creating or editing it. Unlike `daemon-reload`, which silently ignores syntax errors, `systemd-analyze verify` explicitly reports any issues:
+
+```bash
+systemd-analyze verify /etc/systemd/system/nifty-straddle.service
+```
+
+| Output | Meaning |
+|---|---|
+| No output | File is valid ✓ |
+| Warnings or errors printed | Something is wrong — fix before reloading |
+
+**Recommended workflow after any edit to the service file:**
+
+```bash
+# Step 1 — Validate syntax
+systemd-analyze verify /etc/systemd/system/nifty-straddle.service
+
+# Step 2 — Reload systemd (only after syntax is confirmed clean)
+sudo systemctl daemon-reload
+
+# Step 3 — Confirm the service status
+sudo systemctl status nifty-straddle
+```
 
 ---
 
