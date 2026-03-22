@@ -407,6 +407,53 @@ systemctl status nifty-straddle
 
 ---
 
+### What is a symlink?
+
+A symlink (symbolic link) is a file that **points to another file or directory** — like a shortcut on your desktop.
+
+```
+/etc/systemd/system/multi-user.target.wants/
+    nifty-straddle.service  →  /etc/systemd/system/nifty-straddle.service
+```
+
+| Type | How it works |
+|---|---|
+| **Hard link** | Points directly to the data on disk (same inode) — must be on the same filesystem |
+| **Symlink** | Points to a path — can cross filesystems, can point to directories |
+
+If you delete a symlink, the original file is **completely unaffected**.
+
+**How this relates to systemd:**
+When you run `sudo systemctl enable nifty-straddle`, systemd creates this symlink inside `multi-user.target.wants/`. That's how it knows to start the service during boot. When you run `sudo systemctl disable nifty-straddle`, it simply **removes that symlink** — the `.service` file itself is untouched.
+
+---
+
+### What does `[Install] WantedBy=multi-user.target` mean?
+
+The `[Install]` section in a `.service` file defines **how the service gets linked into the system** when you run `systemctl enable`.
+
+```ini
+[Install]
+WantedBy=multi-user.target
+```
+
+`multi-user.target` is the standard Linux boot state meaning:
+- Non-graphical environment
+- Networking is up
+- System is fully running and ready for use
+
+When you run `sudo systemctl enable nifty-straddle`, systemd creates a symlink:
+```
+/etc/systemd/system/multi-user.target.wants/nifty-straddle.service
+    → /etc/systemd/system/nifty-straddle.service
+```
+
+This tells systemd: *"when multi-user.target is reached during boot, also start this service."*
+
+> **In your setup**, since you're using cron to start the service (not `systemctl enable`), the `[Install]` section has **no effect on day-to-day operation**. It's kept in the file as a convention so the service *could* be boot-enabled in the future if needed.
+
+---
+
 ## 🕐 Cron Schedule Summary (IST ↔ UTC)
 
 | Time (IST) | Time (UTC) | Action | Days |
