@@ -112,18 +112,20 @@ Paste the following content:
 Description=Nifty50 Straddle Trading Bot
 After=network-online.target
 Wants=network-online.target
+StartLimitIntervalSec=600
+StartLimitBurst=3
 
 [Service]
+
 Type=simple
 User=ubuntu
 WorkingDirectory=/home/my-scripts/nifty-straddle
 ExecStart=/usr/bin/python3.14 nifty50_straddle.py
 
 # Restart on failure, but NOT on a clean exit(0)
+
 Restart=on-failure
 RestartSec=60
-StartLimitIntervalSec=600
-StartLimitBurst=3
 RestartPreventExitStatus=0
 
 StandardOutput=journal
