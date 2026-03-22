@@ -118,7 +118,14 @@ Type=simple
 User=ubuntu
 WorkingDirectory=/home/my-scripts/nifty-straddle
 ExecStart=/usr/bin/python3.14 nifty50_straddle.py
-Restart=no
+
+# Restart on failure, but NOT on a clean exit(0)
+Restart=on-failure
+RestartSec=60
+StartLimitIntervalSec=600
+StartLimitBurst=3
+RestartPreventExitStatus=0
+
 StandardOutput=journal
 StandardError=journal
 Environment=PYTHONUNBUFFERED=1
@@ -127,8 +134,18 @@ Environment=PYTHONUNBUFFERED=1
 WantedBy=multi-user.target
 ```
 
-> **Why `Restart=no`?**
-> The service will not auto-restart if the script exits. This is intentional — if a major exception occurs (e.g., insufficient funds, broker API error), the script calls `exit(0)` and the service stops cleanly. This prevents uncontrolled retries and avoids hammering the broker server.
+**What each restart directive does:**
+
+| Directive | Value | Effect |
+|---|---|---|
+| `Restart` | `on-failure` | Restart only on non-zero exit, signal kill, or timeout |
+| `RestartSec` | `60` | Wait 60 seconds before each restart attempt |
+| `StartLimitIntervalSec` | `600` | Rate limit window — 10 minutes |
+| `StartLimitBurst` | `3` | Max 3 restart attempts within the 10-minute window |
+| `RestartPreventExitStatus` | `0` | Never restart when the script exits cleanly with code `0` |
+
+> **How these work together:**
+> If the script crashes with an error, systemd waits 60 seconds and restarts it — up to 3 times within 10 minutes. If it crashes more than 3 times in that window, systemd stops retrying and marks the service as `failed`. If the script calls `exit(0)` (intentional shutdown — e.g., insufficient funds, end of trading session), systemd respects that and does **not** restart it.
 
 ### 8b. Validate the service file syntax
 
@@ -515,7 +532,7 @@ The `Restart=` directive controls under what conditions systemd will automatical
 
 **Detailed explanation of each value:**
 
-- **`no`** — systemd never restarts the service regardless of how it exits. Used when the service is intentionally short-lived or managed externally (e.g., by cron). This is what your trading bot uses.
+- **`no`** — systemd never restarts the service regardless of how it exits. Used when the service is intentionally short-lived or managed externally (e.g., by cron).
 
 - **`always`** — systemd restarts the service no matter what — whether it exited cleanly with code `0`, crashed with an error, or was killed by a signal. Useful for services that should never go down (e.g., a web server).
 
@@ -591,8 +608,11 @@ Use `#` at the start of a line to write a comment. Comments are ignored by syste
 
 ```ini
 [Service]
-# This prevents the service from restarting after a clean exit(0)
-Restart=no
+# Restart on failure, but NOT on a clean exit(0)
+Restart=on-failure
+
+# Wait 60 seconds before each restart attempt
+RestartSec=60
 
 # Ensures Python output is not buffered — logs appear in journald immediately
 Environment=PYTHONUNBUFFERED=1
