@@ -118,13 +118,7 @@ Type=simple
 User=ubuntu
 WorkingDirectory=/home/my-scripts/nifty-straddle
 ExecStart=/usr/bin/python3.14 nifty50_straddle.py
-
-Restart=on-failure
-RestartSec=60
-StartLimitIntervalSec=600
-StartLimitBurst=3
-RestartPreventExitStatus=0
-
+Restart=no
 StandardOutput=journal
 StandardError=journal
 Environment=PYTHONUNBUFFERED=1
@@ -273,7 +267,7 @@ SystemMaxUse=100M
 ```
 
 > **Why does `journalctl --disk-usage` still show 16 MB after setting the cap?**
-> This is completely normal. The 100 MB cap does not shrink existing logs — it only prevents future growth beyond 100 MB. Since 16 MB is already well under the limit, journald has nothing to delete. The cap will kick in automatically in the future when logs accumulate and approach 100 MB, at which point journald will start auto-deleting the oldest entries to stay within the limit.
+> This is completely normal. The 100 MB cap does not shrink existing logs — it only prevents future growth beyond 100 MB. Since 16 MB is already well under the limit, journald has nothing to delete. The cap will kick in automatically once logs accumulate and approach 100 MB, at which point journald will start auto-deleting the oldest entries to stay within the limit.
 
 ---
 
@@ -333,6 +327,7 @@ crontab -e
 | `sudo systemctl enable nifty-straddle` | Mark the service to auto-start on boot |
 | `sudo systemctl disable nifty-straddle` | Remove the auto-start on boot mark |
 | `sudo systemctl daemon-reload` | Reload systemd config after editing the service file |
+| `sudo systemctl reset-failed nifty-straddle` | Clear failed state and allow restarts again |
 | `systemd-analyze verify /etc/systemd/system/nifty-straddle.service` | Validate service file syntax |
 
 ### Logs
@@ -501,6 +496,109 @@ sudo systemctl daemon-reload
 # Step 3 — Confirm the service status
 sudo systemctl status nifty-straddle
 ```
+
+---
+
+### `Restart=` — all possible values
+
+The `Restart=` directive controls under what conditions systemd will automatically restart your service after it exits.
+
+| Value | Restarts when... |
+|---|---|
+| `no` | Never — the service is never restarted automatically (default) |
+| `always` | Any exit — success, failure, signal, or timeout |
+| `on-failure` | Non-zero exit code, killed by a signal, or timeout |
+| `on-success` | Only when the process exits cleanly with code `0` |
+| `on-abnormal` | Killed by a signal, timeout, or watchdog — but NOT a non-zero exit code |
+| `on-abort` | Only when killed by an uncaught/unhandled signal |
+| `on-watchdog` | Only when the watchdog timeout expires |
+
+**Detailed explanation of each value:**
+
+- **`no`** — systemd never restarts the service regardless of how it exits. Used when the service is intentionally short-lived or managed externally (e.g., by cron). This is what your trading bot uses.
+
+- **`always`** — systemd restarts the service no matter what — whether it exited cleanly with code `0`, crashed with an error, or was killed by a signal. Useful for services that should never go down (e.g., a web server).
+
+- **`on-failure`** — the most common production choice. Restarts only on unexpected exits: non-zero exit codes, signal kills, or timeouts. Does not restart on a clean `exit(0)`. Ideal for services where a graceful shutdown should be respected.
+
+- **`on-success`** — restarts only when the process exits with code `0`. Rarely used in practice; mostly useful for batch jobs that should re-run after a successful completion.
+
+- **`on-abnormal`** — restarts when the process is killed by a signal (e.g., `SIGKILL`, `SIGSEGV`), hits a timeout, or triggers the watchdog. A non-zero exit from inside the code does NOT trigger a restart. Useful when you want to distinguish between a controlled error exit and an unexpected crash.
+
+- **`on-abort`** — restarts only when the process is terminated by an uncaught signal that would normally produce a core dump (e.g., `SIGABRT`, `SIGSEGV`). A finer-grained subset of `on-abnormal`.
+
+- **`on-watchdog`** — restarts only when the watchdog timer expires (requires the service to implement systemd watchdog keep-alive notifications). Rarely needed outside of highly reliable system services.
+
+---
+
+### `StartLimitBurst` and `StartLimitIntervalSec` — restart rate limiting
+
+These two directives act as a **rate limiter** to prevent systemd from restarting a crashing service in an infinite loop.
+
+```ini
+StartLimitBurst=3
+StartLimitIntervalSec=600
+```
+
+This means: **allow at most 3 restarts within any 10-minute window.**
+
+If the service crashes and restarts 3 times in under 10 minutes, systemd gives up, sets the service to a `failed` state, and stops attempting any further restarts.
+
+**Example with `RestartSec=60`:**
+
+```
+crash → wait 60s → restart (1)
+crash → wait 60s → restart (2)
+crash → wait 60s → restart (3)
+crash → LIMIT HIT → service enters "failed" state, no more restarts
+```
+
+With `RestartSec=60` and `StartLimitBurst=3`, the limit is hit in approximately 4 minutes.
+
+**Why this matters for your trading bot:**
+
+If the Fyers API goes completely down and the script crashes on every startup, without this limit systemd would restart it indefinitely — potentially making repeated bad API calls or placing duplicate orders on recovery. With the rate limit in place, after 3 failures systemd stops and waits for manual intervention.
+
+**Check status after the limit is hit:**
+
+```bash
+sudo systemctl status nifty-straddle
+# shows: "start request repeated too quickly"
+```
+
+**Reset the failed state and allow restarts again:**
+
+```bash
+sudo systemctl reset-failed nifty-straddle
+sudo systemctl start nifty-straddle
+```
+
+---
+
+### Redundant settings — do they cause issues?
+
+No. Redundant settings in a service file cause **zero issues** — no performance impact, no errors, nothing serious.
+
+systemd reads and applies each directive independently. If a setting has no effect because another directive already covers it, systemd silently ignores it.
+
+The only downside is readability — someone reading your service file later might be confused about why a particular directive is there. That is the extent of it.
+
+---
+
+### Comments in a service file
+
+Use `#` at the start of a line to write a comment. Comments are ignored by systemd entirely.
+
+```ini
+[Service]
+# This prevents the service from restarting after a clean exit(0)
+Restart=no
+
+# Ensures Python output is not buffered — logs appear in journald immediately
+Environment=PYTHONUNBUFFERED=1
+```
+
+Comments can be placed anywhere in the file — inside any section or between sections. They are purely for human readability and have no effect on behaviour.
 
 ---
 
