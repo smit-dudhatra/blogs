@@ -14,8 +14,9 @@
 6. [Install pip for Python 3.14](#6-install-pip-for-python-314)
 7. [Setup Project Directory](#7-setup-project-directory)
 8. [Setup systemd Service](#8-setup-systemd-service)
-9. [Setup Cron Jobs](#9-setup-cron-jobs)
-10. [Useful Commands](#10-useful-commands)
+9. [Journal Log Management](#9-journal-log-management)
+10. [Setup Cron Jobs](#10-setup-cron-jobs)
+11. [Useful Commands](#11-useful-commands)
 
 ---
 
@@ -158,9 +159,70 @@ sudo journalctl -u nifty-straddle -f
 
 ---
 
-## 9. Setup Cron Jobs
+## 9. Journal Log Management
 
-### 9a. Verify VPS timezone
+### Why this matters
+
+Your script prints heavily — live ticker data, order logs, minute-by-minute checks. `journalctl` stores **all of it**. Without any size limit, it grows unboundedly and can fill your VPS disk over weeks.
+
+### 9a. Check current journal disk usage
+
+Run this anytime to see how much disk space your logs are consuming:
+
+```bash
+journalctl --disk-usage
+```
+
+Example output:
+```
+Archived and active journals take up 16.0M in the file system.
+```
+
+**What this means:**
+| Term | Description |
+|---|---|
+| **Active journals** | Logs from currently running services (being written right now) |
+| **Archived journals** | Old rotated log files from previous service runs |
+| **16 MB total** | Completely fine — a typical VPS has 20–40 GB disk |
+
+You only need to act if it grows to several hundred MB or more. The one-time cap below handles that automatically.
+
+### 9b. Set a permanent 100 MB size cap (run once, not in cron)
+
+This tells `journald` to auto-delete the oldest log entries whenever total usage exceeds 100 MB — set it once and never think about it again:
+
+```bash
+sudo mkdir -p /etc/systemd/journald.conf.d/
+```
+
+```bash
+echo -e "[Journal]\nSystemMaxUse=100M" | sudo tee /etc/systemd/journald.conf.d/size.conf
+```
+
+```bash
+sudo systemctl restart systemd-journald
+```
+
+### 9c. Verify the config was applied
+
+```bash
+cat /etc/systemd/journald.conf.d/size.conf
+```
+
+Expected output:
+```
+[Journal]
+SystemMaxUse=100M
+```
+
+> **Why does `journalctl --disk-usage` still show 16 MB after setting the cap?**
+> That is completely normal. The 100 MB cap does **not** shrink existing logs — it only **prevents future growth** beyond 100 MB. Since 16 MB is already well under the limit, journald has nothing to delete. The cap kicks in automatically in the future when logs accumulate and approach 100 MB, at which point it will start auto-deleting the oldest entries to stay under the limit.
+
+---
+
+## 10. Setup Cron Jobs
+
+### 10a. Verify VPS timezone
 
 The Hostinger VPS uses **UTC** by default. All cron times below are in **UTC**.
 
@@ -170,13 +232,13 @@ The Hostinger VPS uses **UTC** by default. All cron times below are in **UTC**.
 timedatectl
 ```
 
-### 9b. Open crontab editor
+### 10b. Open crontab editor
 
 ```bash
 crontab -e
 ```
 
-### 9c. Add the following cron jobs
+### 10c. Add the following cron jobs
 
 ```cron
 # Weekly journal cleanup (every Sunday at 12:00 AM IST / 6:00 PM UTC Saturday)
@@ -192,7 +254,7 @@ crontab -e
 5 10 * * * systemctl stop nifty-straddle
 ```
 
-### 9d. Crontab reference
+### 10d. Crontab reference
 
 | Command | Description |
 |---|---|
@@ -202,7 +264,7 @@ crontab -e
 
 ---
 
-## 10. Useful Commands
+## 11. Useful Commands
 
 ### Service management
 
@@ -222,6 +284,7 @@ crontab -e
 | `sudo journalctl -u nifty-straddle -f` | Live logs |
 | `sudo journalctl -u nifty-straddle --since today` | Today's logs |
 | `sudo journalctl -u nifty-straddle -n 100` | Last 100 log lines |
+| `journalctl --disk-usage` | Check total journal disk usage |
 
 ### List all systemd services
 
