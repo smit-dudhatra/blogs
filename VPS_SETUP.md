@@ -17,6 +17,7 @@
 9. [Journal Log Management](#9-journal-log-management)
 10. [Setup Cron Jobs](#10-setup-cron-jobs)
 11. [Useful Commands](#11-useful-commands)
+12. [Concepts & Reference](#12-concepts--reference)
 
 ---
 
@@ -139,17 +140,53 @@ sudo systemctl daemon-reload
 
 > `daemon-reload` instructs systemd to rescan all unit files, rebuild the dependency tree, and rerun generators — without restarting the entire system.
 
-Enable the service to start on boot:
+### 8c. Disable boot auto-start (important — we use cron instead)
+
+Since cron controls when the service starts (Mon & Tue at 8:55 AM IST), you do **not** want systemd to auto-start it on every VPS reboot:
 
 ```bash
-sudo systemctl enable nifty-straddle
+sudo systemctl disable nifty-straddle
 ```
 
-Manually start the service:
+After disabling, verify:
+
+```bash
+systemctl list-unit-files | grep nifty-straddle
+```
+
+Expected output:
+```
+nifty-straddle.service    disabled    enabled
+```
+
+This is correct. `disabled` = won't auto-start on boot. Your cron job still starts it on schedule.
+
+### 8d. Manually start the service
 
 ```bash
 sudo systemctl start nifty-straddle
 ```
+
+### 8e. Check actual running status
+
+```bash
+systemctl status nifty-straddle
+```
+
+| Output | Meaning |
+|---|---|
+| `Active: active (running)` | Script is running right now |
+| `Active: inactive (dead)` | Script is stopped ✓ |
+
+### 8f. Stop the service
+
+To stop the service at any time — including mid-session if you need to halt the script abruptly:
+
+```bash
+sudo systemctl stop nifty-straddle
+```
+
+> systemd sends `SIGTERM` to the Python process, which kills it immediately. Use this anytime you want to stop the bot mid-run — e.g., at 11:30 AM before market close.
 
 View live logs:
 
@@ -271,11 +308,11 @@ crontab -e
 | Command | Description |
 |---|---|
 | `sudo systemctl start nifty-straddle` | Start the service |
-| `sudo systemctl stop nifty-straddle` | Stop the service |
-| `sudo systemctl status nifty-straddle` | Check service status |
-| `sudo systemctl enable nifty-straddle` | Enable on boot |
-| `sudo systemctl disable nifty-straddle` | Disable on boot |
-| `sudo systemctl daemon-reload` | Reload systemd config |
+| `sudo systemctl stop nifty-straddle` | Stop the service (kills process immediately via SIGTERM) |
+| `sudo systemctl status nifty-straddle` | Check if running or stopped |
+| `sudo systemctl enable nifty-straddle` | Mark to auto-start on boot |
+| `sudo systemctl disable nifty-straddle` | Remove auto-start on boot |
+| `sudo systemctl daemon-reload` | Reload systemd config after editing service file |
 
 ### Logs
 
@@ -290,6 +327,82 @@ crontab -e
 
 ```bash
 systemctl list-unit-files --type=service
+```
+
+---
+
+## 12. Concepts & Reference
+
+### stop vs enable — they are independent
+
+A very common point of confusion:
+
+```bash
+sudo systemctl stop nifty-straddle
+# service still shows: enabled
+```
+
+`stop` and `enable/disable` control **completely different things** and do not affect each other:
+
+| Command | What it controls |
+|---|---|
+| `systemctl stop` | Kills the running process **right now** |
+| `systemctl start` | Starts the process **right now** |
+| `systemctl enable` | Marks it to **auto-start on every boot** |
+| `systemctl disable` | Removes the **auto-start on boot** mark |
+
+So `enabled` just means it will start when the VPS reboots — it says **nothing** about whether the process is running right now. Always use `systemctl status` to check the actual running state.
+
+---
+
+### Understanding `systemctl list-unit-files` columns
+
+When you run:
+
+```bash
+systemctl list-unit-files | grep nifty-straddle
+```
+
+You see two columns:
+
+```
+nifty-straddle.service    disabled    enabled
+                          ^STATE      ^PRESET
+```
+
+**STATE** — what it's currently configured to do on boot:
+
+| State | Meaning |
+|---|---|
+| `enabled` | Will auto-start on boot |
+| `disabled` | Will NOT auto-start on boot |
+| `static` | Can't be enabled/disabled, used by other units |
+| `masked` | Completely blocked, can't be started at all |
+
+**PRESET** — the distribution's default/recommended state for this service:
+
+| Preset | Meaning |
+|---|---|
+| `enabled` | Ubuntu recommends this should be enabled by default |
+| `disabled` | Ubuntu recommends this should be disabled by default |
+
+> The PRESET column shows `enabled` because the `.service` file has `WantedBy=multi-user.target`, which is the standard Ubuntu default. It doesn't change unless you explicitly run `systemctl preset`. It's just a recommendation — your actual STATE (`disabled`) is what matters.
+
+---
+
+### Stopping the script abruptly mid-session
+
+If the script is running (e.g., cron started it at 8:55 AM) and you need to stop it immediately at any point:
+
+```bash
+sudo systemctl stop nifty-straddle
+```
+
+systemd sends `SIGTERM` to the Python process, which kills it immediately. Confirm it stopped:
+
+```bash
+systemctl status nifty-straddle
+# Expected: Active: inactive (dead)
 ```
 
 ---
