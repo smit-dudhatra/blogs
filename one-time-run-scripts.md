@@ -16,3 +16,4 @@ Detach from a session: Press Ctrl+A then d to leave a session running in the bac
 For further customization, you can modify the ~/.screenrc configuration file to set default behaviors, such as the scrollback buffer size or custom keybindings.
 
 https://github.com/copilot/c/455d66a2-e400-40d1-8ffc-e9e3c58a5d0c
+
