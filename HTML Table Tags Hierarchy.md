@@ -6,11 +6,12 @@ table
 ├── colgroup
 │   └── col
 ├── thead
-├── tbody
 │   └── tr
-│       ├── th
-│       └── td
+│       └── th
+├── tbody
 └── tfoot
+    └── tr
+        └── td
 ```
 
 ---
@@ -24,16 +25,18 @@ table
 | `<colgroup>` | Groups one or more columns for styling |
 | `<col>` | Child of `<colgroup>` — defines individual column properties |
 | `<thead>` | Groups the **header** rows |
-| `<tbody>` | Groups the **body** rows |
+| `<tbody>` | Groups the **body** rows (no direct children shown) |
 | `<tfoot>` | Groups the **footer** rows |
-| `<tr>` | Defines a **table row** (inside thead/tbody/tfoot) |
-| `<th>` | **Header cell** — bold & centered by default |
-| `<td>` | **Data cell** — regular content |
+| `<tr>` | Defines a **table row** (inside thead/tfoot) |
+| `<th>` | **Header cell** — inside `<thead> > <tr>` |
+| `<td>` | **Data cell** — inside `<tfoot> > <tr>` |
 
 ---
 
 ## 🔑 Key Points
 
-- `thead`, `tbody`, and `tfoot` all can contain `<tr>` rows
-- `<th>` and `<td>` are always **inside `<tr>`**
-- `<caption>` is the **first child** of `<table>`
+- `<thead>` contains `<tr>` → `<th>` (header cells)
+- `<tfoot>` contains `<tr>` → `<td>` (data cells)
+- `<tbody>` is present but has no further children shown
+- `<caption>` is always the **first child** of `<table>`
+- `<col>` is always **inside `<colgroup>`**
