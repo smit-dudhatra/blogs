@@ -40,3 +40,5 @@ table
 - `<tbody>` is present but has no further children shown
 - `<caption>` is always the **first child** of `<table>`
 - `<col>` is always **inside `<colgroup>`**
+- `rowspan` and `colspan` are attributes of **`<th>`** and **`<td>`** — used to merge cells across rows or columns
+- `<col>` supports the **`style`** attribute — used to apply CSS styles to an entire column
