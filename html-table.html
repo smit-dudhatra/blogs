@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HTML Table Tags – Visual Reference</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0f1117;
+      color: #e0e0e0;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2rem;
+      margin-bottom: 6px;
+      color: #7dd3fc;
+      letter-spacing: 1px;
+    }
+    .subtitle {
+      text-align: center;
+      color: #94a3b8;
+      margin-bottom: 50px;
+      font-size: 0.95rem;
+    }
+
+    /* ── diagram wrapper ── */
+    .diagram {
+      position: relative;
+      max-width: 900px;
+      margin: 0 auto 60px;
+    }
+
+    /* ── the actual demo table ── */
+    .demo-wrap {
+      margin: 0 auto;
+      width: fit-content;
+      position: relative;
+    }
+
+    table.demo {
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      background: #1e2533;
+      border: 3px solid #7dd3fc;   /* <table> highlight */
+      border-radius: 6px;
+      overflow: hidden;
+      min-width: 380px;
+    }
+
+    caption {
+      caption-side: top;
+      background: #312e81;
+      color: #c7d2fe;
+      padding: 8px 14px;
+      font-weight: bold;
+      font-size: 0.85rem;
+      border-bottom: 2px dashed #818cf8;
+      text-align: left;
+    }
+
+    colgroup col:nth-child(1) { background: rgba(251,191,36,0.07); }
+    colgroup col:nth-child(2) { background: rgba(251,191,36,0.04); }
+    colgroup col:nth-child(3) { background: rgba(251,191,36,0.02); }
+
+    thead tr { background: #1e3a5f; }
+    thead th {
+      padding: 10px 18px;
+      color: #7dd3fc;
+      border: 1px solid #334155;
+      font-size: 0.85rem;
+      text-align: left;
+    }
+
+    tbody tr { background: #1a2235; }
+    tbody tr:nth-child(even) { background: #1e2a3a; }
+    tbody td {
+      padding: 9px 18px;
+      border: 1px solid #2d3a4f;
+      color: #cbd5e1;
+      font-size: 0.85rem;
+    }
+
+    tfoot tr { background: #1a2d1a; }
+    tfoot td {
+      padding: 8px 18px;
+      border: 1px solid #2d3a4f;
+      color: #86efac;
+      font-size: 0.8rem;
+      font-style: italic;
+    }
+
+    /* ── label boxes ── */
+    .label {
+      position: absolute;
+      background: #0f1117;
+      border: 1.5px solid;
+      border-radius: 8px;
+      padding: 5px 11px;
+      font-size: 0.78rem;
+      font-family: 'Cascadia Code', 'Fira Code', monospace;
+      font-weight: 700;
+      white-space: nowrap;
+      cursor: default;
+      transition: transform 0.15s;
+      z-index: 10;
+    }
+    .label:hover { transform: scale(1.08); }
+    .label .desc {
+      display: block;
+      font-family: 'Segoe UI', sans-serif;
+      font-weight: 400;
+      font-size: 0.68rem;
+      opacity: 0.8;
+      margin-top: 1px;
+    }
+
+    /* colour-per-tag */
+    .c-table   { color:#7dd3fc; border-color:#7dd3fc; }
+    .c-caption { color:#c7d2fe; border-color:#818cf8; }
+    .c-colgroup{ color:#fbbf24; border-color:#fbbf24; }
+    .c-col     { color:#f59e0b; border-color:#f59e0b; }
+    .c-thead   { color:#38bdf8; border-color:#38bdf8; }
+    .c-th      { color:#67e8f9; border-color:#67e8f9; }
+    .c-tbody   { color:#4ade80; border-color:#4ade80; }
+    .c-tr      { color:#a3e635; border-color:#a3e635; }
+    .c-td      { color:#fb923c; border-color:#fb923c; }
+    .c-tfoot   { color:#86efac; border-color:#86efac; }
+
+    /* SVG arrow overlay */
+    svg.arrows {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      overflow: visible;
+    }
+
+    /* ── legend / cheat-sheet ── */
+    .legend {
+      max-width: 900px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 14px;
+    }
+    .legend-card {
+      background: #1e2533;
+      border-radius: 10px;
+      padding: 14px 16px;
+      border-left: 4px solid;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .legend-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+    }
+    .legend-card .tag {
+      font-family: 'Cascadia Code','Fira Code',monospace;
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+    .legend-card .meaning {
+      font-size: 0.78rem;
+      color: #94a3b8;
+      line-height: 1.4;
+    }
+    .legend-card.c-table   { border-color:#7dd3fc; } .legend-card.c-table   .tag { color:#7dd3fc; }
+    .legend-card.c-caption { border-color:#818cf8; } .legend-card.c-caption .tag { color:#c7d2fe; }
+    .legend-card.c-colgroup{ border-color:#fbbf24; } .legend-card.c-colgroup .tag { color:#fbbf24; }
+    .legend-card.c-col     { border-color:#f59e0b; } .legend-card.c-col     .tag { color:#f59e0b; }
+    .legend-card.c-thead   { border-color:#38bdf8; } .legend-card.c-thead   .tag { color:#38bdf8; }
+    .legend-card.c-th      { border-color:#67e8f9; } .legend-card.c-th      .tag { color:#67e8f9; }
+    .legend-card.c-tbody   { border-color:#4ade80; } .legend-card.c-tbody   .tag { color:#4ade80; }
+    .legend-card.c-tr      { border-color:#a3e635; } .legend-card.c-tr      .tag { color:#a3e635; }
+    .legend-card.c-td      { border-color:#fb923c; } .legend-card.c-td      .tag { color:#fb923c; }
+    .legend-card.c-tfoot   { border-color:#86efac; } .legend-card.c-tfoot   .tag { color:#86efac; }
+
+    h2.section { text-align:center; color:#94a3b8; margin: 40px 0 20px; font-size:1rem; letter-spacing:2px; text-transform:uppercase; }
+
+    /* memory tip */
+    .tip-box {
+      max-width: 900px;
+      margin: 30px auto 0;
+      background: #1e2533;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 18px 22px;
+    }
+    .tip-box h3 { color: #fbbf24; margin-bottom: 10px; font-size: 0.95rem; }
+    .tip-box ul { padding-left: 20px; }
+    .tip-box li { color: #94a3b8; font-size: 0.82rem; margin-bottom: 6px; line-height: 1.5; }
+    .tip-box li span { font-family: monospace; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+<h1>📊 HTML Table Tags</h1>
+<p class="subtitle">Visual reference — every tag, right where it lives in the table</p>
+
+<!-- ════════════════════════════════════════════
+     DIAGRAM
+════════════════════════════════════════════ -->
+<div class="diagram" id="diagram" style="height:520px;">
+
+  <!-- Labels (positioned manually for clarity) -->
+
+  <!-- <table> — far left, middle -->
+  <div class="label c-table"  style="left:0px; top:210px;">
+    &lt;table&gt;<span class="desc">The whole table</span>
+  </div>
+
+  <!-- <caption> — top left -->
+  <div class="label c-caption" style="left:20px; top:30px;">
+    &lt;caption&gt;<span class="desc">Title / caption</span>
+  </div>
+
+  <!-- <colgroup> — top right -->
+  <div class="label c-colgroup" style="right:10px; top:60px;">
+    &lt;colgroup&gt;<span class="desc">Column group</span>
+  </div>
+
+  <!-- <col> — right, slightly below colgroup -->
+  <div class="label c-col" style="right:10px; top:110px;">
+    &lt;col&gt;<span class="desc">Single column style</span>
+  </div>
+
+  <!-- <thead> — left, near header rows -->
+  <div class="label c-thead" style="left:0px; top:120px;">
+    &lt;thead&gt;<span class="desc">Header section</span>
+  </div>
+
+  <!-- <th> — top right near header cells -->
+  <div class="label c-th" style="right:10px; top:160px;">
+    &lt;th&gt;<span class="desc">Header cell</span>
+  </div>
+
+  <!-- <tbody> — left, body area -->
+  <div class="label c-tbody" style="left:0px; top:290px;">
+    &lt;tbody&gt;<span class="desc">Body section</span>
+  </div>
+
+  <!-- <tr> — right, row area -->
+  <div class="label c-tr" style="right:10px; top:270px;">
+    &lt;tr&gt;<span class="desc">A row</span>
+  </div>
+
+  <!-- <td> — right, data cell -->
+  <div class="label c-td" style="right:10px; top:340px;">
+    &lt;td&gt;<span class="desc">A data cell</span>
+  </div>
+
+  <!-- <tfoot> — bottom left -->
+  <div class="label c-tfoot" style="left:0px; top:430px;">
+    &lt;tfoot&gt;<span class="desc">Footer section</span>
+  </div>
+
+  <!-- THE ACTUAL TABLE — centred in the diagram -->
+  <div class="demo-wrap" id="demoWrap"
+       style="position:absolute; left:50%; top:20px; transform:translateX(-50%);">
+    <table class="demo" id="demoTable">
+      <caption>🏆 Top Scorers — Season 2025</caption>
+      <colgroup>
+        <col style="width:130px">
+        <col style="width:90px">
+        <col style="width:90px">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Player</th>
+          <th>Goals</th>
+          <th>Assists</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Smit D.</td>
+          <td>22</td>
+          <td>11</td>
+        </tr>
+        <tr>
+          <td>Alex K.</td>
+          <td>18</td>
+          <td>9</td>
+        </tr>
+        <tr>
+          <td>Priya M.</td>
+          <td>15</td>
+          <td>14</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="3">* Regular season only</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <!-- SVG arrows drawn by JS below -->
+  <svg class="arrows" id="arrowSvg"></svg>
+</div><!-- /diagram -->
+
+
+<!-- ════════════════════════════════════════════
+     LEGEND CARDS
+════════════════════════════════════════════ -->
+<h2 class="section">🗂 Quick Reference Cards</h2>
+<div class="legend">
+  <div class="legend-card c-table">
+    <div class="tag">&lt;table&gt;</div>
+    <div class="meaning">The outer container. Every other tag lives inside this.</div>
+  </div>
+  <div class="legend-card c-caption">
+    <div class="tag">&lt;caption&gt;</div>
+    <div class="meaning">Optional title shown above (or below) the table.</div>
+  </div>
+  <div class="legend-card c-colgroup">
+    <div class="tag">&lt;colgroup&gt;</div>
+    <div class="meaning">Groups columns so you can style a whole column at once.</div>
+  </div>
+  <div class="legend-card c-col">
+    <div class="tag">&lt;col&gt;</div>
+    <div class="meaning">One &lt;col&gt; per column inside &lt;colgroup&gt;. Sets width / bg.</div>
+  </div>
+  <div class="legend-card c-thead">
+    <div class="tag">&lt;thead&gt;</div>
+    <div class="meaning">Wraps the header rows. Browsers keep it visible on long scrolls.</div>
+  </div>
+  <div class="legend-card c-th">
+    <div class="tag">&lt;th&gt;</div>
+    <div class="meaning">A header cell — bold & centred by default. Lives in &lt;tr&gt;.</div>
+  </div>
+  <div class="legend-card c-tbody">
+    <div class="tag">&lt;tbody&gt;</div>
+    <div class="meaning">Wraps all the main data rows of the table.</div>
+  </div>
+  <div class="legend-card c-tr">
+    <div class="tag">&lt;tr&gt;</div>
+    <div class="meaning">One horizontal row. Put &lt;th&gt; or &lt;td&gt; cells inside it.</div>
+  </div>
+  <div class="legend-card c-td">
+    <div class="tag">&lt;td&gt;</div>
+    <div class="meaning">A regular data cell. The most common cell type.</div>
+  </div>
+  <div class="legend-card c-tfoot">
+    <div class="tag">&lt;tfoot&gt;</div>
+    <div class="meaning">Wraps footer rows (totals, notes). Renders last visually.</div>
+  </div>
+</div>
+
+<!-- MEMORY TIPS -->
+<div class="tip-box">
+  <h3>🧠 Memory Tricks</h3>
+  <ul>
+    <li><span>&lt;table&gt;</span> = the body — everything is inside it</li>
+    <li><span>&lt;caption&gt;</span> = the name tag on a shirt</li>
+    <li><span>&lt;thead&gt; / &lt;tbody&gt; / &lt;tfoot&gt;</span> = Head 🧠 · Belly 🫁 · Feet 🦶 of the table</li>
+    <li><span>&lt;tr&gt;</span> = <b>T</b>able <b>R</b>ow — a shelf on a bookcase</li>
+    <li><span>&lt;th&gt;</span> = <b>T</b>able <b>H</b>eader — the label on the shelf</li>
+    <li><span>&lt;td&gt;</span> = <b>T</b>able <b>D</b>ata — the actual book on the shelf</li>
+    <li><span>&lt;colgroup&gt; + &lt;col&gt;</span> = painting vertical stripes on the bookcase</li>
+  </ul>
+</div>
+
+
+<!-- ════════════ ARROW DRAWING SCRIPT ════════════ -->
+<script>
+  // Define each arrow: { from: label-selector, to: element-id-or-query, labelAnchor, tableAnchor }
+  // We'll just place them after layout settles
+  window.addEventListener('load', () => {
+    const svg = document.getElementById('arrowSvg');
+    const diagram = document.getElementById('diagram');
+    const diagramRect = diagram.getBoundingClientRect();
+
+    function pt(el, xRatio, yRatio) {
+      const r = el.getBoundingClientRect();
+      return {
+        x: r.left - diagramRect.left + r.width  * xRatio,
+        y: r.top  - diagramRect.top  + r.height * yRatio
+      };
+    }
+
+    const table   = document.querySelector('table.demo');
+    const caption = document.querySelector('caption');
+    const thead   = document.querySelector('thead');
+    const th1     = document.querySelector('thead th:first-child');
+    const tbody   = document.querySelector('tbody');
+    const tr2     = document.querySelector('tbody tr:nth-child(2)');
+    const td1     = document.querySelector('tbody tr:first-child td:nth-child(2)');
+    const tfoot   = document.querySelector('tfoot');
+
+    const lblTable   = document.querySelectorAll('.label')[0];
+    const lblCaption = document.querySelectorAll('.label')[1];
+    const lblColgrp  = document.querySelectorAll('.label')[2];
+    const lblCol     = document.querySelectorAll('.label')[3];
+    const lblThead   = document.querySelectorAll('.label')[4];
+    const lblTh      = document.querySelectorAll('.label')[5];
+    const lblTbody   = document.querySelectorAll('.label')[6];
+    const lblTr      = document.querySelectorAll('.label')[7];
+    const lblTd      = document.querySelectorAll('.label')[8];
+    const lblTfoot   = document.querySelectorAll('.label')[9];
+
+    const arrows = [
+      // [from-el, fromX, fromY,  to-el, toX, toY, color]
+      [lblTable,   1,    0.5,   table,    0,   0.5,  '#7dd3fc'],
+      [lblCaption, 1,    0.5,   caption,  0,   0.5,  '#818cf8'],
+      [lblColgrp,  0,    0.5,   table,    1,   0.25, '#fbbf24'],
+      [lblCol,     0,    0.5,   table,    1,   0.32, '#f59e0b'],
+      [lblThead,   1,    0.5,   thead,    0,   0.5,  '#38bdf8'],
+      [lblTh,      0,    0.5,   th1,      1,   0.5,  '#67e8f9'],
+      [lblTbody,   1,    0.5,   tbody,    0,   0.5,  '#4ade80'],
+      [lblTr,      0,    0.5,   tr2,      1,   0.5,  '#a3e635'],
+      [lblTd,      0,    0.5,   td1,      1,   0.5,  '#fb923c'],
+      [lblTfoot,   1,    0.5,   tfoot,    0,   0.5,  '#86efac'],
+    ];
+
+    arrows.forEach(([fromEl, fx, fy, toEl, tx, ty, color]) => {
+      if (!fromEl || !toEl) return;
+      const a = pt(fromEl, fx, fy);
+      const b = pt(toEl,   tx, ty);
+
+      // curved path
+      const mx = (a.x + b.x) / 2;
+      const d  = `M ${a.x} ${a.y} C ${mx} ${a.y}, ${mx} ${b.y}, ${b.x} ${b.y}`;
+
+      // arrow marker
+      const markerId = 'm' + Math.random().toString(36).slice(2);
+      svg.insertAdjacentHTML('beforeend', `
+        <defs>
+          <marker id="${markerId}" markerWidth="8" markerHeight="8"
+                  refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="${color}" opacity="0.85"/>
+          </marker>
+        </defs>
+        <path d="${d}" fill="none" stroke="${color}" stroke-width="1.8"
+              stroke-dasharray="5,3" opacity="0.75"
+              marker-end="url(#${markerId})"/>
+      `);
+    });
+  });
+</script>
+</body>
+</html>
