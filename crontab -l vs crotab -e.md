@@ -1,0 +1,2 @@
+-l means look , read-only
+-e means in edit mode
