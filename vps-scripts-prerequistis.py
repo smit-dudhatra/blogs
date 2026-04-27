@@ -10,3 +10,5 @@ badha ma individually
   starts with "NIFTY"
 
   kite na orders and postions ma badhe j apply karo
+
+1 quantity trading for 1 expiry at least minimum
