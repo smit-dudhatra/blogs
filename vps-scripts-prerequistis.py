@@ -12,3 +12,11 @@ badha ma individually
   kite na orders and postions ma badhe j apply karo
 
 1 quantity trading for 1 expiry at least minimum
+
+
+-------------------------
+pending orders ma
+
+PE and CE maate
+position thi opposite ek j Sl order BUY or SELL hovo joiye
+
