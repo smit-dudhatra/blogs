@@ -20,3 +20,11 @@ pending orders ma
 PE and CE maate
 position thi opposite ek j Sl order BUY or SELL hovo joiye
 
+
+---------------------
+
+system ma jyare pan
+order place karvano thaay tyare
+postions mathi net postions and orders mathi open orders 
+check karine j order place karva
+
