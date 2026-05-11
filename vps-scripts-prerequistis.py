@@ -28,3 +28,10 @@ order place karvano thaay tyare
 postions mathi net postions and orders mathi open orders 
 check karine j order place karva
 
+--------------------------
+
+1 minute check ma
+net positions and pending orders khaash check karva 
+
+quantity vadhare occhi che ?
+penging orders vadhare occha che ?
