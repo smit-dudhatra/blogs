@@ -33,5 +33,23 @@ check karine j order place karva
 1 minute check ma
 net positions and pending orders khaash check karva 
 
+-----------------------------------
+
 quantity vadhare occhi che ?
 penging orders vadhare occha che ?
+
+
+
+-----------------------------------
+
+
+market prottection thi place karela order koi vaar limit ma rahi jaay che
+
+suppose nifty 25000 ne trigger kare to postion levani che
+
+to 25000 ne volume thi brake kare to , koi ek leg j aavshe
+bijo leg occho bhaav thai jaashe ane nai aave
+
+
+tyare limit ma rehelo order 
+cancel karine , tarat j bijo order place karine position ne hedge karo
