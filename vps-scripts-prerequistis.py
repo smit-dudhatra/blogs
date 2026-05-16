@@ -59,4 +59,4 @@ cancel karine , tarat j bijo order place karine position ne hedge karo
 je script ma SL-M order available naa hoy ema
 aapne haathe pan SL with LIMIT order place kari shakiye
 
-https://support.zerodha.com/category/trading-and-markets/charts-and-orders/order/articles/market-price-protection-on-the-order-window
+(https://support.zerodha.com/category/trading-and-markets/charts-and-orders/order/articles/market-price-protection-on-the-order-window)
