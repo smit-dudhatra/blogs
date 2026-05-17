@@ -76,3 +76,12 @@ Any gray part or any confusion has to be watched?
 -----------------------------
 
 check if there is any race condition is there in the code or not ?
+
+
+-------------------------------
+
+buy and sell pending orders can not in pending state for any leg
+if the buy postion is sqaured off , related SL and Target orders should be also removed
+dangling orders should be removed
+prevent from placing duplicate orders and wrong quantity position
+prevent from naked buy or sell position
