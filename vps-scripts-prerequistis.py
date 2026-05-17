@@ -60,3 +60,12 @@ je script ma SL-M order available naa hoy ema
 aapne haathe pan SL with LIMIT order place kari shakiye
 
 [VISIT URL] (https://support.zerodha.com/category/trading-and-markets/charts-and-orders/order/articles/market-price-protection-on-the-order-window)
+
+
+----------------------------------------
+
+ek vaar AI ne pan pucho k 
+aa script ma tane kaai error or missing case laage che ?
+
+list of bugs/errors , missing edge case / critical case to handle, entry - exit and SL all is defined or not ?
+any confusion it has ?
