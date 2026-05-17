@@ -72,3 +72,7 @@ missing edge case / critical case to handle,
 code quality improvements
 entry - exit and SL all are defined or not?
 Any gray part or any confusion has to be watched?
+
+-----------------------------
+
+check if there is any race condition is there in the code or not ?
