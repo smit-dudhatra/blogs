@@ -67,5 +67,8 @@ aapne haathe pan SL with LIMIT order place kari shakiye
 ek vaar AI ne pan pucho k 
 aa script ma tane kaai error or missing case laage che ?
 
-list of bugs/errors , missing edge case / critical case to handle, entry - exit and SL all is defined or not ?
+list of bugs/errors ,
+missing edge case / critical case to handle,
+code quality improvements
+entry - exit and SL all is defined or not ?
 any confusion it has ?
