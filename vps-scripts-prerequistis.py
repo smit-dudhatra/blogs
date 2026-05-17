@@ -14,6 +14,13 @@ badha ma individually
 1 quantity trading for 1 expiry at least minimum
 
 
+----------------------------------------------
+
+kite.orders and kite.positions thi
+every 5 seconds or every 10 seconds (as per your speed requirement)
+script ni internal state sync karo
+
+
 -------------------------
 pending orders ma
 
