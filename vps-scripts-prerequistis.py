@@ -92,3 +92,9 @@ if the buy postion is sqaured off , related SL and Target orders should be also 
 dangling orders should be removed
 prevent from placing duplicate orders and wrong quantity position
 prevent from naked buy or sell position
+
+--------------------------
+
+
+at any time script looses it's internal data state,
+fetch it from kite.orders or kite.positions
