@@ -110,3 +110,10 @@ optimize it according to your needs then deploy it to live with 1 lot and check
 
 
 ------------------
+add this param DO_MOCK_TRADING = True
+
+and if this is true
+just log each and evry minute ce and pe state and check the observation on log
+don't take trade
+
+-----------------------------
