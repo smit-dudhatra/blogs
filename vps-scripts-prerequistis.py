@@ -98,3 +98,15 @@ prevent from naked buy or sell position
 
 at any time script looses it's internal data state,
 fetch it from kite.orders or kite.positions
+
+----------------
+
+best scenario to test 
+
+give candle data for historical day
+check on each candle what script thinks ?
+
+optimize it according to your needs then deploy it to live with 1 lot and check
+
+
+------------------
