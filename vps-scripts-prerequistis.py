@@ -121,3 +121,9 @@ don't take trade
 
 microsoft visio or eraser ma diagram banavo
 clarity aavshe and future reference maate kaam laagshe
+
+
+------------------------
+
+huge movement wala days nu mock trading karo
+and unhandled or exception wala case ne handle karo
