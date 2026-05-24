@@ -127,3 +127,18 @@ clarity aavshe and future reference maate kaam laagshe
 
 huge movement wala days nu mock trading karo
 and unhandled or exception wala case ne handle karo
+
+-----------------------
+
+Badha interval checks ne merge karo
+
+-----------------
+
+repeted api calls remove karo
+
+---------------
+
+every decision ne ek condition aapo
+ne decision leta pela possible hoy to 
+condition kite.orders and kite.positions thi check karo
+
