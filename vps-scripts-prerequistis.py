@@ -142,3 +142,27 @@ every decision ne ek condition aapo
 ne decision leta pela possible hoy to 
 condition kite.orders and kite.positions thi check karo
 
+----------------
+
+frequently
+missing edge cases
+potetntial bugs , 
+unhandled casesfind karta ryo
+
+sample prompt
+
+read the script in depth
+
+simulate the secenario
+from start_date to end_date
+
+and make flow chart of entry exit and sl
+
+or any pictorial or sequential way to understand the script and it's internals
+
+find any missing edge case , unhandled cases or potetntial bugs
+i am new to the script and wants to understand how this script works
+pls ask me queries if you have any
+
+-----------------
+
