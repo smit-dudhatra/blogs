@@ -117,3 +117,7 @@ just log each and evry minute ce and pe state and check the observation on log
 don't take trade
 
 -----------------------------
+
+
+microsoft visio or eraser ma diagram banavo
+clarity aavshe and future reference maate kaam laagshe
