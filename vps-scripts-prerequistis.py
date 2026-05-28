@@ -166,3 +166,11 @@ pls ask me queries if you have any
 
 -----------------
 
+for compile check
+run this command
+
+cd /home/path_to_you file && python3 -m py_compile <python_file_name.py> && echo "✓ Syntax OK"
+
+
+---------------------
+
