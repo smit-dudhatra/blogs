@@ -176,3 +176,9 @@ cd /home/path_to_you file && python3 -m py_compile <python_file_name.py> && echo
 
 every market order should be placed with market protection only
 
+------------------
+
+make a flow chart or steps or precedure of your understanding
+to clarify the things or trading process
+----
+
