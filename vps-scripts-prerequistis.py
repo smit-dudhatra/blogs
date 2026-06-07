@@ -185,7 +185,7 @@ demo prompt
 
 scan this script extremely deeply,
 
-find any execution flow, any missing implementation , or colliding condition or any confusing part , any expcetion case to handle about script
+find any execution flow, any race condition ,any missing implementation , or colliding condition or any confusing part , any expcetion case to handle about script
 
 it should have clear entry , exit and re-entry rules defined
 
