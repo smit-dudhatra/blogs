@@ -181,4 +181,16 @@ every market order should be placed with market protection only
 make a flow chart or steps or precedure of your understanding
 to clarify the things or trading process
 ----
+demo prompt
+
+scan this script extremely deeply,
+
+find any execution flow, any missing implementation , or colliding condition or any confusing part , any expcetion case to handle about script
+
+it should have clear entry , exit and re-entry rules defined
+
+pls ask me queries
+if you have any
+
+--------------
 
