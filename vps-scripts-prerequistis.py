@@ -205,3 +205,12 @@ option type
 
 -------------
 
+strike change par , webscoket na instruments change thaay che ?
+
+jo nai thaay to
+SL and re-entry old instrument according thaashe
+
+strike change par subscribe instrument pan change karo
+
+-------------
+
