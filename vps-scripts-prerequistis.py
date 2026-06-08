@@ -194,3 +194,14 @@ if you have any
 
 --------------
 
+10 second interval ma shu check karvanu ?
+
+same expiry,
+same strike (if straddle),
+quantity of position and SL orders,
+SL prices,
+BUY or SELL direction,
+option type
+
+-------------
+
