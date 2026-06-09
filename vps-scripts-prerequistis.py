@@ -214,3 +214,13 @@ strike change par subscribe instrument pan change karo
 
 -------------
 
+Check file encoding and UTF-8 validity
+Find and verify all non-ASCII emoji sequences in the file
+Compile-check all string literals including emoji
+
+to solve the emoji encode error on console
+
+------------
+
+
+
