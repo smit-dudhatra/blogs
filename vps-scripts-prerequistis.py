@@ -222,5 +222,8 @@ to solve the emoji encode error on console
 
 ------------
 
+trading ma mean ne badle median use vadhare karo
 
+
+----------
 
