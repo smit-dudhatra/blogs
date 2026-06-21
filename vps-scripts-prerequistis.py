@@ -227,3 +227,18 @@ trading ma mean ne badle median use vadhare karo
 
 ----------
 
+see this script carefully and deeply analyze this ?
+
+do you find any flaw?
+or missing implementation?
+or missing edge case?
+Potential bugs?
+Any minor or major logic gap?
+
+or any confusion to execute the script ?
+or anything that is not handled correctly ?
+
+pls list them all and ask me queries if you have any
+
+------------------
+
