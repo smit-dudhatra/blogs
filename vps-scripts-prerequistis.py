@@ -227,7 +227,7 @@ trading ma mean ne badle median use vadhare karo
 
 ----------
 
-see this script carefully and deeply analyze this ?
+see this script carefully and deeply analyze this
 
 do you find any flaw?
 or missing implementation?
