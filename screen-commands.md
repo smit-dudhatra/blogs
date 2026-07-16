@@ -46,22 +46,22 @@ For further customization, you can modify the `~/.screenrc` configuration file t
    ```bash
    screen -d <session_id>
    ```
-   Example: `screen -d 12345.pts-0.server` [1][2][3][4][5]
+   Example: `screen -d 12345.pts-0.server` 
 
 ## Method 2: Stop the Console Output Stream First
 
-If you can't open a second terminal, pause the output stream so `screen` can actually read your shortcut keys [6]:
+If you can't open a second terminal, pause the output stream so `screen` can actually read your shortcut keys :
 
 1. Press `Ctrl + S` to temporarily freeze the terminal's output.
 2. Immediately press `Ctrl + A`, release, then press `D` to detach.
-3. **Note:** If you get stuck, or press `Ctrl + S` without detaching, press `Ctrl + Q` to unfreeze the output and try again. [7][8][6]
+3. **Note:** If you get stuck, or press `Ctrl + S` without detaching, press `Ctrl + Q` to unfreeze the output and try again. 
 
 ## Method 3: Use the Command Prompt Override
 
-If the standard `Ctrl + A` then `D` shortcut fails, use Screen's internal command line instead [9][10][11]:
+If the standard `Ctrl + A` then `D` shortcut fails, use Screen's internal command line instead :
 
 1. Press `Ctrl + A` then `:` (colon) to bring up the Screen command bar at the bottom.
-2. Type `detach` and press Enter. [9][10]
+2. Type `detach` and press Enter.
 
 ---
 
