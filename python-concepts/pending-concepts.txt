@@ -2,3 +2,12 @@ ayncio
 thread
 traceback
 loggin data to file
+
+
+data scientce concepts 
+
+numpy 
+panda
+pyskit
+pytorch
+
